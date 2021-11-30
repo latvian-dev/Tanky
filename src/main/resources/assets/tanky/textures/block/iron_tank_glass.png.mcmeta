@@ -2,7 +2,7 @@
   "ctm": {
     "ctm_version": 1,
     "type": "CTM",
-    "layer": "CUTOUT",
+    "layer": "CUTOUT_MIPPED",
     "textures": [
       "tanky:block/iron_tank_glass_ctm"
     ]

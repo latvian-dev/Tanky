@@ -2,22 +2,29 @@ package dev.latvian.mods.tanky.block;
 
 import dev.latvian.mods.tanky.block.entity.TankControllerBlockEntity;
 import dev.latvian.mods.tanky.block.entity.TankWallBlockEntity;
+import dev.latvian.mods.tanky.util.TankTier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.Material;
 import org.jetbrains.annotations.Nullable;
 
 public class TankWallBlock extends TankBlock {
-	public TankWallBlock(int buckets) {
-		super(Properties.of(Material.METAL).sound(SoundType.METAL), buckets);
+	public static final BooleanProperty VALID = BooleanProperty.create("valid");
+
+	public TankWallBlock(Properties p, TankTier tier) {
+		super(p, tier);
+		registerDefaultState(getStateDefinition().any().setValue(VALID, false));
 	}
 
-	public TankWallBlock(Properties p, int buckets) {
-		super(p, buckets);
+	public TankWallBlock(TankTier tier) {
+		this(Properties.of(Material.METAL).sound(SoundType.METAL), tier);
 	}
 
 	@Override
@@ -32,26 +39,25 @@ public class TankWallBlock extends TankBlock {
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState state1, boolean bl) {
-		BlockEntity entity = level.getBlockEntity(pos);
-		TankControllerBlockEntity controller = entity instanceof TankWallBlockEntity ? ((TankWallBlockEntity) entity).getController() : null;
-
-		super.onRemove(state, level, pos, state1, bl);
-
-		if (controller != null) {
-			controller.resize();
-		}
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(VALID);
 	}
 
 	@Override
-	public void onPlace(BlockState state, Level level, BlockPos pos, BlockState state1, boolean bl) {
-		super.onPlace(state, level, pos, state1, bl);
+	@Deprecated
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState state1, boolean bl) {
+		if (!level.isClientSide() && !state.is(state1.getBlock())) {
+			BlockEntity entity = level.getBlockEntity(pos);
+			TankControllerBlockEntity controller = entity instanceof TankWallBlockEntity ? ((TankWallBlockEntity) entity).getController() : null;
 
-		BlockEntity entity = level.getBlockEntity(pos);
-		TankControllerBlockEntity controller = entity instanceof TankWallBlockEntity ? ((TankWallBlockEntity) entity).findController() : null;
+			super.onRemove(state, level, pos, state1, bl);
 
-		if (controller != null) {
-			controller.resize();
+			if (controller != null) {
+				controller.resetTank();
+				controller.sync();
+			}
+		} else {
+			super.onRemove(state, level, pos, state1, bl);
 		}
 	}
 }

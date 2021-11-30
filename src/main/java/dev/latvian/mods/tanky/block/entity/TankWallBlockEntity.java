@@ -1,5 +1,6 @@
 package dev.latvian.mods.tanky.block.entity;
 
+import dev.latvian.mods.tanky.block.TankWallBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -11,6 +12,8 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class TankWallBlockEntity extends BlockEntity implements TankEntityLookup {
 	public BlockPos controllerPos = null;
 	public TankControllerBlockEntity cachedEntity = null;
@@ -20,27 +23,27 @@ public class TankWallBlockEntity extends BlockEntity implements TankEntityLookup
 	}
 
 	@Override
-	public void load(BlockState state, CompoundTag tag) {
-		super.load(state, tag);
-
+	public CompoundTag save(CompoundTag tag) {
 		if (controllerPos != null) {
 			tag.putInt("ControllerX", controllerPos.getX());
 			tag.putInt("ControllerY", controllerPos.getY());
 			tag.putInt("ControllerZ", controllerPos.getZ());
 		}
 
-		cachedEntity = null;
+		return super.save(tag);
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
+	public void load(BlockState state, CompoundTag tag) {
+		super.load(state, tag);
+
 		if (tag.contains("ControllerX")) {
 			controllerPos = new BlockPos(tag.getInt("ControllerX"), tag.getInt("ControllerY"), tag.getInt("ControllerZ"));
 		} else {
 			controllerPos = null;
 		}
 
-		return super.save(tag);
+		cachedEntity = null;
 	}
 
 	@NotNull
@@ -82,5 +85,14 @@ public class TankWallBlockEntity extends BlockEntity implements TankEntityLookup
 		}
 
 		return cachedEntity;
+	}
+
+	public void setControllerPos(@Nullable BlockPos p) {
+		if (!Objects.equals(controllerPos, p)) {
+			controllerPos = p;
+			setChanged();
+			cachedEntity = null;
+			level.setBlock(worldPosition, getBlockState().setValue(TankWallBlock.VALID, controllerPos != null), 3);
+		}
 	}
 }

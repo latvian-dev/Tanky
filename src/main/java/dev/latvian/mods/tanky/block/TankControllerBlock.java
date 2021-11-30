@@ -1,6 +1,7 @@
 package dev.latvian.mods.tanky.block;
 
 import dev.latvian.mods.tanky.block.entity.TankControllerBlockEntity;
+import dev.latvian.mods.tanky.util.TankTier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -11,8 +12,8 @@ import net.minecraft.world.level.material.Material;
 import org.jetbrains.annotations.Nullable;
 
 public class TankControllerBlock extends TankBlock {
-	public TankControllerBlock(int buckets) {
-		super(Properties.of(Material.METAL).sound(SoundType.METAL), buckets);
+	public TankControllerBlock(TankTier tier) {
+		super(Properties.of(Material.METAL).sound(SoundType.METAL), tier);
 	}
 
 	@Override
@@ -28,13 +29,15 @@ public class TankControllerBlock extends TankBlock {
 
 	@Override
 	@Deprecated
-	public void onPlace(BlockState state, Level level, BlockPos pos, BlockState state1, boolean bl) {
-		super.onPlace(state, level, pos, state1, bl);
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState state1, boolean bl) {
+		if (!level.isClientSide()) {
+			BlockEntity entity = level.getBlockEntity(pos);
 
-		BlockEntity entity = level.getBlockEntity(pos);
-
-		if (entity instanceof TankControllerBlockEntity) {
-			((TankControllerBlockEntity) entity).resize();
+			if (entity instanceof TankControllerBlockEntity) {
+				((TankControllerBlockEntity) entity).resetTank();
+			}
 		}
+
+		super.onRemove(state, level, pos, state1, bl);
 	}
 }

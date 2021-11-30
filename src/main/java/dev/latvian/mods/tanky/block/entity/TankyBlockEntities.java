@@ -19,5 +19,5 @@ public interface TankyBlockEntities {
 	}
 
 	Supplier<BlockEntityType<?>> TANK_CONTROLLER = register("tank_controller", TankControllerBlockEntity::new, TankyBlocks.IRON_TANK_CONTROLLER, TankyBlocks.STEEL_TANK_CONTROLLER);
-	Supplier<BlockEntityType<?>> TANK_WALL = register("tank_wall", TankControllerBlockEntity::new, TankyBlocks.IRON_TANK_WALL, TankyBlocks.IRON_TANK_GLASS, TankyBlocks.STEEL_TANK_WALL, TankyBlocks.STEEL_TANK_GLASS);
+	Supplier<BlockEntityType<?>> TANK_WALL = register("tank_wall", TankWallBlockEntity::new, TankyBlocks.IRON_TANK_WALL, TankyBlocks.IRON_TANK_GLASS, TankyBlocks.STEEL_TANK_WALL, TankyBlocks.STEEL_TANK_GLASS);
 }

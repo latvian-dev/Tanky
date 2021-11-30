@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/cube_all",
+	"textures": {
+		"all": "tanky:block/iron_tank_wall_invalid"
+	}
+}

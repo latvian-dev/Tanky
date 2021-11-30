@@ -21,12 +21,8 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraftforge.client.model.generators.BlockStateProvider;
-import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeLootTableProvider;
-import net.minecraftforge.common.data.LanguageProvider;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
@@ -45,74 +41,10 @@ public class TankyDataGen {
 	@SubscribeEvent
 	public static void dataGenEvent(GatherDataEvent event) {
 		DataGenerator gen = event.getGenerator();
-		ExistingFileHelper efh = event.getExistingFileHelper();
-
-		if (event.includeClient()) {
-			gen.addProvider(new TankyLang(gen, MODID, "en_us"));
-			gen.addProvider(new TankyBlockStates(gen, MODID, efh));
-			gen.addProvider(new TankyItemModels(gen, MODID, efh));
-		}
 
 		if (event.includeServer()) {
 			gen.addProvider(new TankyRecipes(gen));
 			gen.addProvider(new TankyLootTableProvider(gen));
-		}
-	}
-
-	private static class TankyLang extends LanguageProvider {
-		public TankyLang(DataGenerator gen, String modid, String locale) {
-			super(gen, modid, locale);
-		}
-
-		@Override
-		protected void addTranslations() {
-			add("itemGroup.tanky", "Tanky");
-
-			addBlock(TankyBlocks.IRON_TANK_CONTROLLER, "Iron Tank Controller");
-			addBlock(TankyBlocks.IRON_TANK_WALL, "Iron Tank Wall");
-			addBlock(TankyBlocks.IRON_TANK_GLASS, "Iron Tank Glass");
-			addBlock(TankyBlocks.STEEL_TANK_CONTROLLER, "Steel Tank Controller");
-			addBlock(TankyBlocks.STEEL_TANK_WALL, "Steel Tank Wall");
-			addBlock(TankyBlocks.STEEL_TANK_GLASS, "Steel Tank Glass");
-
-			add("block.tanky.tank_controller.info", "This is a tank controller");
-		}
-	}
-
-	private static class TankyBlockStates extends BlockStateProvider {
-		public TankyBlockStates(DataGenerator gen, String modid, ExistingFileHelper exFileHelper) {
-			super(gen, modid, exFileHelper);
-		}
-
-		@Override
-		protected void registerStatesAndModels() {
-			simpleBlock(TankyBlocks.IRON_TANK_CONTROLLER.get());
-			simpleBlock(TankyBlocks.IRON_TANK_WALL.get());
-			simpleBlock(TankyBlocks.IRON_TANK_GLASS.get());
-			simpleBlock(TankyBlocks.STEEL_TANK_CONTROLLER.get());
-			simpleBlock(TankyBlocks.STEEL_TANK_WALL.get());
-			simpleBlock(TankyBlocks.STEEL_TANK_GLASS.get());
-		}
-	}
-
-	private static class TankyItemModels extends ItemModelProvider {
-		public TankyItemModels(DataGenerator generator, String modid, ExistingFileHelper existingFileHelper) {
-			super(generator, modid, existingFileHelper);
-		}
-
-		private void basicBlockItem(Supplier<Block> block) {
-			String id = block.get().getRegistryName().getPath();
-			withExistingParent(id, modLoc("block/" + id));
-		}
-
-		@Override
-		protected void registerModels() {
-			basicBlockItem(TankyBlocks.IRON_TANK_CONTROLLER);
-			basicBlockItem(TankyBlocks.IRON_TANK_WALL);
-			basicBlockItem(TankyBlocks.IRON_TANK_GLASS);
-			basicBlockItem(TankyBlocks.STEEL_TANK_CONTROLLER);
-			basicBlockItem(TankyBlocks.STEEL_TANK_WALL);
-			basicBlockItem(TankyBlocks.STEEL_TANK_GLASS);
 		}
 	}
 

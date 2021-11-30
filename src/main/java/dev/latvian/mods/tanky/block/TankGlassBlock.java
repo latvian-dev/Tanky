@@ -1,5 +1,6 @@
 package dev.latvian.mods.tanky.block;
 
+import dev.latvian.mods.tanky.util.TankTier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -11,8 +12,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class TankGlassBlock extends TankWallBlock {
-	public TankGlassBlock(int buckets) {
-		super(Properties.of(Material.GLASS).sound(SoundType.GLASS).noOcclusion().isViewBlocking((arg, arg2, arg3) -> false), buckets);
+	public TankGlassBlock(TankTier tier) {
+		super(Properties.of(Material.GLASS).sound(SoundType.GLASS).noOcclusion().isViewBlocking((arg, arg2, arg3) -> false).isRedstoneConductor((arg, arg2, arg3) -> false).isSuffocating((arg, arg2, arg3) -> false), tier);
 	}
 
 	@Override
@@ -24,7 +25,7 @@ public class TankGlassBlock extends TankWallBlock {
 	@Override
 	@Deprecated
 	public float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
-		return 1.0F;
+		return 1F;
 	}
 
 	@Override

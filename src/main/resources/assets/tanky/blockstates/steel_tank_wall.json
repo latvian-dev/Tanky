@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"valid=true": {
+			"model": "tanky:block/steel_tank_wall"
+		},
+		"valid=false": {
+			"model": "tanky:block/steel_tank_wall_invalid"
+		}
+	}
+}

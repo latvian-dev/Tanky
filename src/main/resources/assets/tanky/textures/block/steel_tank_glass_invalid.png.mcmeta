@@ -4,7 +4,7 @@
     "type": "CTM",
     "layer": "CUTOUT_MIPPED",
     "textures": [
-      "tanky:block/steel_tank_glass_ctm"
+      "tanky:block/steel_tank_glass_invalid_ctm"
     ]
   }
 }

@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"valid=true": {
+			"model": "tanky:block/steel_tank_glass"
+		},
+		"valid=false": {
+			"model": "tanky:block/steel_tank_glass_invalid"
+		}
+	}
+}
