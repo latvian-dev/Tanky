@@ -1,0 +1,26 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "tanky:steel_tank_controller",
+	"pattern": [
+		"BHB",
+		"TCT",
+		"BHB"
+	],
+	"key": {
+		"T": {
+			"item": "tanky:steel_tank_wall"
+		},
+		"H": {
+			"item": "minecraft:hopper"
+		},
+		"B": {
+			"item": "minecraft:bucket"
+		},
+		"C": {
+			"item": "minecraft:cauldron"
+		}
+	},
+	"result": {
+		"item": "tanky:steel_tank_controller"
+	}
+}

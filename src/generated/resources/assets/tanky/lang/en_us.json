@@ -1,0 +1,10 @@
+{
+	"block.tanky.iron_tank_controller": "Iron Tank Controller",
+	"block.tanky.iron_tank_glass": "Iron Tank Glass",
+	"block.tanky.iron_tank_wall": "Iron Tank Wall",
+	"block.tanky.steel_tank_controller": "Steel Tank Controller",
+	"block.tanky.steel_tank_glass": "Steel Tank Glass",
+	"block.tanky.steel_tank_wall": "Steel Tank Wall",
+	"block.tanky.tank_controller.info": "This is a tank controller",
+	"itemGroup.tanky": "Tanky"
+}

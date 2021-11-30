@@ -1,0 +1,21 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "tanky:iron_tank_wall",
+	"pattern": [
+		"III",
+		"IGI",
+		"III"
+	],
+	"key": {
+		"I": {
+			"tag": "forge:ingots/iron"
+		},
+		"G": {
+			"tag": "forge:glass"
+		}
+	},
+	"result": {
+		"item": "tanky:iron_tank_wall",
+		"count": 3
+	}
+}

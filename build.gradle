@@ -63,9 +63,9 @@ dependencies {
 	minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
 	mappings minecraft.officialMojangMappings()
 	forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
-	modImplementation("me.shedaniel:architectury-forge:${rootProject.architectury_version}")
 	modImplementation("me.shedaniel:RoughlyEnoughItems-forge:${rootProject.rei_version}")
 	modRuntime("curse.maven:ctm-267602:3137659")
+	modRuntime("curse.maven:pipez-443900:3525428")
 }
 
 processResources {
@@ -151,9 +151,6 @@ if (ENV.CURSEFORGE_KEY) {
 			releaseType = project.curseforge_type
 			addGameVersion "1.16.5"
 			mainArtifact(remapJar.archivePath)
-			relations {
-				requiredDependency 'architectury-forge'
-			}
 			changelog = getGitChangelog
 			changelogType = 'markdown'
 		}
