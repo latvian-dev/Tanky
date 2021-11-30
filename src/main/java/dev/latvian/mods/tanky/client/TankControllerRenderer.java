@@ -26,11 +26,15 @@ public class TankControllerRenderer extends BlockEntityRenderer<TankControllerBl
 			return;
 		}
 
+		int cap = Math.max(entity.tank.getCapacity(), entity.tank.getFluidAmount());
+
+		if (cap <= 0) {
+			return;
+		}
+
 		Minecraft mc = Minecraft.getInstance();
-		matrices.pushPose();
-		matrices.translate(0D, 1D, 0D);
 		Matrix4f m = matrices.last().pose();
-		int light = LevelRenderer.getLightColor(entity.getLevel(), entity.getBlockPos().above());
+		int light = LevelRenderer.getLightColor(entity.getLevel(), entity.tank.getFluid().getFluid().defaultFluidState().createLegacyBlock(), entity.getBlockPos().above());
 
 		FluidStack fluid = entity.tank.getFluid();
 
@@ -46,52 +50,82 @@ public class TankControllerRenderer extends BlockEntityRenderer<TankControllerBl
 		float b = ((color >> 0) & 255) / 255F;
 		float a = 1F;
 
-		float s0 = 3.2F / 16F;
-		float s1 = 1F - s0;
+		float y = Math.min(entity.tank.getFluidAmount() / (float) cap * (entity.height - 1F) + 0.01F, entity.height - 1F);
 
-		float y0 = 0.2F / 16F;
-		float y1 = (0.2F + 12.6F * entity.tank.getFluidAmount() / (float) entity.tank.getCapacity()) / 16F;
-
-		float u0 = sprite.getU(3D);
+		float u0 = sprite.getU0();
 		float v0 = sprite.getV0();
-		float u1 = sprite.getU(13D);
-		float v1 = sprite.getV(y1 * 16D);
+		float u1 = sprite.getU1();
+		float vty = y % 1F;
+		float vt = sprite.getV(vty == 0F ? 16D : (vty * 16D));
+		float v1 = sprite.getV1();
 
-		float u0top = sprite.getU(3D);
-		float v0top = sprite.getV(3D);
-		float u1top = sprite.getU(13D);
-		float v1top = sprite.getV(13D);
+		int tr = entity.radius - 1;
 
-		builder.vertex(m, s0, y1, s0).color(r, g, b, a).uv(u0top, v0top).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s0, y1, s1).color(r, g, b, a).uv(u0top, v1top).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s1, y1, s1).color(r, g, b, a).uv(u1top, v1top).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s1, y1, s0).color(r, g, b, a).uv(u1top, v0top).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+		for (int x = -tr; x <= tr; x++) {
+			for (int z = -tr; z <= tr; z++) {
+				builder.vertex(m, x + 0F, y + 1F, z + 0F).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, x + 0F, y + 1F, z + 1F).color(r, g, b, a).uv(u0, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, x + 1F, y + 1F, z + 1F).color(r, g, b, a).uv(u1, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, x + 1F, y + 1F, z + 0F).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			}
+		}
 
-		builder.vertex(m, s0, y0, s0).color(r, g, b, a).uv(u0top, v0top).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s1, y0, s0).color(r, g, b, a).uv(u1top, v0top).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s1, y0, s1).color(r, g, b, a).uv(u1top, v1top).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s0, y0, s1).color(r, g, b, a).uv(u0top, v1top).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+		int ay = 0;
 
-		builder.vertex(m, s0, y1, s1).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s0, y0, s1).color(r, g, b, a).uv(u0, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s1, y0, s1).color(r, g, b, a).uv(u1, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s1, y1, s1).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+		while (y >= 1F) {
+			y -= 1F;
 
-		builder.vertex(m, s0, y1, s0).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s1, y1, s0).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s1, y0, s0).color(r, g, b, a).uv(u1, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s0, y0, s0).color(r, g, b, a).uv(u0, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			for (int i = -tr; i <= tr; i++) {
+				builder.vertex(m, 0F + i, ay + 2F, 1F + tr).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 0F + i, ay + 1F, 1F + tr).color(r, g, b, a).uv(u0, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 1F + i, ay + 1F, 1F + tr).color(r, g, b, a).uv(u1, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 1F + i, ay + 2F, 1F + tr).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
 
-		builder.vertex(m, s0, y1, s0).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s0, y0, s0).color(r, g, b, a).uv(u0, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s0, y0, s1).color(r, g, b, a).uv(u1, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s0, y1, s1).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 0F + i, ay + 2F, 0F - tr).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 1F + i, ay + 2F, 0F - tr).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 1F + i, ay + 1F, 0F - tr).color(r, g, b, a).uv(u1, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 0F + i, ay + 1F, 0F - tr).color(r, g, b, a).uv(u0, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
 
-		builder.vertex(m, s1, y1, s0).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s1, y1, s1).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s1, y0, s1).color(r, g, b, a).uv(u1, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
-		builder.vertex(m, s1, y0, s0).color(r, g, b, a).uv(u0, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 0F - tr, ay + 2F, 0F + i).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 0F - tr, ay + 1F, 0F + i).color(r, g, b, a).uv(u0, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 0F - tr, ay + 1F, 1F + i).color(r, g, b, a).uv(u1, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 0F - tr, ay + 2F, 1F + i).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
 
-		matrices.popPose();
+				builder.vertex(m, 1F + tr, ay + 2F, 0F + i).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 1F + tr, ay + 2F, 1F + i).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 1F + tr, ay + 1F, 1F + i).color(r, g, b, a).uv(u1, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+				builder.vertex(m, 1F + tr, ay + 1F, 0F + i).color(r, g, b, a).uv(u0, v1).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			}
+
+			ay++;
+		}
+
+		if (y <= 0F) {
+			return;
+		}
+
+		float yo = 1F + y;
+
+		for (int i = -tr; i <= tr; i++) {
+			builder.vertex(m, 0F + i, ay + yo, 1F + tr).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 0F + i, ay + 1F, 1F + tr).color(r, g, b, a).uv(u0, vt).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 1F + i, ay + 1F, 1F + tr).color(r, g, b, a).uv(u1, vt).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 1F + i, ay + yo, 1F + tr).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+
+			builder.vertex(m, 0F + i, ay + yo, 0F - tr).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 1F + i, ay + yo, 0F - tr).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 1F + i, ay + 1F, 0F - tr).color(r, g, b, a).uv(u1, vt).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 0F + i, ay + 1F, 0F - tr).color(r, g, b, a).uv(u0, vt).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+
+			builder.vertex(m, 0F - tr, ay + yo, 0F + i).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 0F - tr, ay + 1F, 0F + i).color(r, g, b, a).uv(u0, vt).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 0F - tr, ay + 1F, 1F + i).color(r, g, b, a).uv(u1, vt).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 0F - tr, ay + yo, 1F + i).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+
+			builder.vertex(m, 1F + tr, ay + yo, 0F + i).color(r, g, b, a).uv(u0, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 1F + tr, ay + yo, 1F + i).color(r, g, b, a).uv(u1, v0).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 1F + tr, ay + 1F, 1F + i).color(r, g, b, a).uv(u1, vt).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+			builder.vertex(m, 1F + tr, ay + 1F, 0F + i).color(r, g, b, a).uv(u0, vt).overlayCoords(overlay).uv2(light).normal(n, 0F, 1F, 0F).endVertex();
+		}
 	}
 }

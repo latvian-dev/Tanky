@@ -15,6 +15,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidAttributes;
@@ -177,6 +180,7 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 
 	private void resize(TankTier tier) {
 		int h = 0;
+		boolean foundTop = false;
 
 		int maxY = Math.min(TankyConfig.MAX_HEIGHT, level.getHeight() - worldPosition.getY());
 		BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
@@ -187,6 +191,7 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 
 			if (getWall(tier, state, mutablePos) != null) {
 				h++;
+				foundTop = true;
 				break;
 			} else if (isAir(state)) {
 				h++;
@@ -195,7 +200,7 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 			}
 		}
 
-		if (h <= 1) {
+		if (!foundTop || h <= 1) {
 			return;
 		}
 
@@ -290,5 +295,18 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 		radius = 0;
 		tank.setCapacity(0);
 		formCooldown = 20;
+	}
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public double getViewDistance() {
+		return 256D;
+	}
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public AABB getRenderBoundingBox() {
+		BlockPos p = worldPosition;
+		return new AABB(p.getX() - radius, p.getY(), p.getZ() - radius, p.getX() + radius + 1D, p.getY() + height + 2D, p.getZ() + radius + 1D);
 	}
 }
