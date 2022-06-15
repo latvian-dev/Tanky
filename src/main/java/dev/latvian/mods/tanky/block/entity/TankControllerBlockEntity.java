@@ -4,24 +4,25 @@ import dev.latvian.mods.tanky.TankyConfig;
 import dev.latvian.mods.tanky.block.TankBlock;
 import dev.latvian.mods.tanky.block.TankWallBlock;
 import dev.latvian.mods.tanky.util.TankTier;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
@@ -31,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TankControllerBlockEntity extends BlockEntity implements TickableBlockEntity, TankEntityLookup {
+public class TankControllerBlockEntity extends BlockEntity implements TankEntityLookup {
 	public final ControllerFluidTank tank;
 	private LazyOptional<FluidTank> tankOptional;
 	public FluidStack fluidLock;
@@ -39,8 +40,8 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 	public int height;
 	public int formCooldown;
 
-	public TankControllerBlockEntity() {
-		super(TankyBlockEntities.TANK_CONTROLLER.get());
+	public TankControllerBlockEntity(BlockPos pos, BlockState state) {
+		super(TankyBlockEntities.TANK_CONTROLLER.get(), pos, state);
 		tank = new ControllerFluidTank(this);
 		tankOptional = null;
 		fluidLock = FluidStack.EMPTY;
@@ -66,28 +67,25 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 	}
 
 	@Override
-	public void load(BlockState state, CompoundTag tag) {
-		super.load(state, tag);
+	public void load(CompoundTag tag) {
+		super.load(tag);
 		readData(tag);
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
-		super.save(tag);
+	public void saveAdditional(CompoundTag tag) {
+		super.saveAdditional(tag);
 		writeData(tag);
-		return tag;
 	}
 
 	@Override
-	public void handleUpdateTag(BlockState state, CompoundTag tag) {
+	public void handleUpdateTag(CompoundTag tag) {
 		readData(tag);
 	}
 
 	@Override
 	public CompoundTag getUpdateTag() {
-		CompoundTag tag = super.getUpdateTag();
-		writeData(tag);
-		return tag;
+		return Util.make(super.getUpdateTag(), this::writeData);
 	}
 
 	@Override
@@ -98,9 +96,7 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 	@Nullable
 	@Override
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {
-		CompoundTag tag = new CompoundTag();
-		writeData(tag);
-		return new ClientboundBlockEntityDataPacket(worldPosition, 0, tag);
+		return ClientboundBlockEntityDataPacket.create(this);
 	}
 
 	public LazyOptional<?> getTankOptional() {
@@ -132,31 +128,6 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 	}
 
 	@Override
-	public void tick() {
-		if (height == 0 && level != null && formCooldown == 0 && !level.isClientSide() && getBlockState().getBlock() instanceof TankBlock) {
-			height = 0;
-			radius = 0;
-
-			TankTier tier = ((TankBlock) getBlockState().getBlock()).tier;
-			resize(tier);
-
-			if (height > 0) {
-				tank.setCapacity(FluidAttributes.BUCKET_VOLUME * tier.buckets * (height + 1) * (radius * 2 + 1) * (radius * 2 + 1));
-			} else {
-				tank.setCapacity(0);
-			}
-
-			sync();
-		}
-
-		if (formCooldown <= 0) {
-			formCooldown = height > 0 ? 1200 : 20;
-		}
-
-		formCooldown--;
-	}
-
-	@Override
 	public TankControllerBlockEntity getController() {
 		return this;
 	}
@@ -167,11 +138,10 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 
 	@Nullable
 	private TankWallBlockEntity getWall(TankTier tier, BlockState state, BlockPos pos) {
-		if (state.getBlock() instanceof TankWallBlock && ((TankWallBlock) state.getBlock()).tier == tier) {
-			BlockEntity e = level.getBlockEntity(pos);
-
-			if (e instanceof TankWallBlockEntity && (((TankWallBlockEntity) e).controllerPos == null || ((TankWallBlockEntity) e).controllerPos.equals(worldPosition))) {
-				return (TankWallBlockEntity) e;
+		if (state.getBlock() instanceof TankWallBlock wall && wall.tier == tier) {
+			if (level.getBlockEntity(pos) instanceof TankWallBlockEntity wallBe &&
+					(wallBe.controllerPos == null || wallBe.controllerPos.equals(worldPosition))) {
+				return wallBe;
 			}
 		}
 
@@ -264,9 +234,9 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 		FluidUtil.interactWithFluidHandler(player, hand, tank);
 
 		if (tank.getFluidAmount() == 0) {
-			player.displayClientMessage(new TextComponent(String.format("0 / %,d", tank.getCapacity())), true);
+			player.displayClientMessage(Component.literal(String.format("0 / %,d", tank.getCapacity())), true);
 		} else {
-			player.displayClientMessage(new TextComponent(String.format("%,d / %,d", tank.getFluidAmount(), tank.getCapacity())).append(" of ").append(tank.getFluid().getDisplayName()), true);
+			player.displayClientMessage(Component.literal(String.format("%,d / %,d", tank.getFluidAmount(), tank.getCapacity())).append(" of ").append(tank.getFluid().getDisplayName()), true);
 		}
 	}
 
@@ -282,8 +252,8 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 						if (level.getBlockState(mutablePos).getBlock() instanceof TankWallBlock) {
 							BlockEntity e = level.getBlockEntity(mutablePos);
 
-							if (e instanceof TankWallBlockEntity) {
-								((TankWallBlockEntity) e).setControllerPos(null);
+							if (e instanceof TankWallBlockEntity wall) {
+								wall.setControllerPos(null);
 							}
 						}
 					}
@@ -299,14 +269,31 @@ public class TankControllerBlockEntity extends BlockEntity implements TickableBl
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public double getViewDistance() {
-		return 256D;
-	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
 	public AABB getRenderBoundingBox() {
 		BlockPos p = worldPosition;
 		return new AABB(p.getX() - radius, p.getY(), p.getZ() - radius, p.getX() + radius + 1D, p.getY() + height + 2D, p.getZ() + radius + 1D);
+	}
+
+	public static void tick(Level level, BlockPos pos, BlockState state, TankControllerBlockEntity controller) {
+		if (!level.isClientSide && controller.height == 0 && controller.formCooldown == 0 && controller.getBlockState().getBlock() instanceof TankBlock tank) {
+			controller.radius = 0;
+
+			TankTier tier = tank.tier;
+			controller.resize(tier);
+
+			if (controller.height > 0) {
+				controller.tank.setCapacity(FluidType.BUCKET_VOLUME * tier.buckets * (controller.height + 1) * (controller.radius * 2 + 1) * (controller.radius * 2 + 1));
+			} else {
+				controller.tank.setCapacity(0);
+			}
+
+			controller.sync();
+		}
+
+		if (controller.formCooldown <= 0) {
+			controller.formCooldown = controller.height > 0 ? 1200 : 20;
+		}
+
+		controller.formCooldown--;
 	}
 }

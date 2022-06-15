@@ -1,0 +1,7 @@
+// 1.19	2022-06-15T20:30:06.509588358	LootTables
+c94ba49870564f8a24d95e035c155e961a0ccce5 data/tanky/loot_tables/blocks/iron_tank_controller.json
+8d20751a5aa877195f45c3818191ad5d993984a3 data/tanky/loot_tables/blocks/iron_tank_glass.json
+b644846e1c3fa65e514fb2b9d03e7324d9aebc07 data/tanky/loot_tables/blocks/iron_tank_wall.json
+b0374dfed8744a2651f17d9f2fd505447962eb09 data/tanky/loot_tables/blocks/steel_tank_controller.json
+49e3e50efee30216924d9687cb03dc4a3258acff data/tanky/loot_tables/blocks/steel_tank_glass.json
+7598d1b2f0d165dfa2b4f4b57801102a97bb0f26 data/tanky/loot_tables/blocks/steel_tank_wall.json

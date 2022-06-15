@@ -4,7 +4,6 @@ import dev.latvian.mods.tanky.block.entity.TankControllerBlockEntity;
 import dev.latvian.mods.tanky.block.entity.TankWallBlockEntity;
 import dev.latvian.mods.tanky.util.TankTier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -27,15 +26,10 @@ public class TankWallBlock extends TankBlock {
 		this(Properties.of(Material.METAL).sound(SoundType.METAL), tier);
 	}
 
-	@Override
-	public boolean hasTileEntity(BlockState state) {
-		return true;
-	}
-
 	@Nullable
 	@Override
-	public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-		return new TankWallBlockEntity();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return new TankWallBlockEntity(pos, state);
 	}
 
 	@Override
@@ -48,7 +42,7 @@ public class TankWallBlock extends TankBlock {
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState state1, boolean bl) {
 		if (!level.isClientSide() && !state.is(state1.getBlock())) {
 			BlockEntity entity = level.getBlockEntity(pos);
-			TankControllerBlockEntity controller = entity instanceof TankWallBlockEntity ? ((TankWallBlockEntity) entity).getController() : null;
+			TankControllerBlockEntity controller = entity instanceof TankWallBlockEntity wall ? wall.getController() : null;
 
 			super.onRemove(state, level, pos, state1, bl);
 

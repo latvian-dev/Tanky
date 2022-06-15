@@ -6,26 +6,31 @@ import com.mojang.datafixers.util.Pair;
 import dev.latvian.mods.tanky.Tanky;
 import dev.latvian.mods.tanky.block.TankyBlocks;
 import dev.latvian.mods.tanky.item.TankyItems;
+import dev.latvian.mods.tanky.util.TankyUtils;
+import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.loot.BlockLoot;
+import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.data.ForgeLootTableProvider;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +45,13 @@ public class TankyDataGen {
 
 	@SubscribeEvent
 	public static void dataGenEvent(GatherDataEvent event) {
-		DataGenerator gen = event.getGenerator();
+		var gen = event.getGenerator();
+		var efh = event.getExistingFileHelper();
 
 		if (event.includeServer()) {
-			gen.addProvider(new TankyRecipes(gen));
-			gen.addProvider(new TankyLootTableProvider(gen));
+			gen.addProvider(true, new TankyRecipes(gen));
+			gen.addProvider(true, new TankyLootTableProvider(gen));
+			gen.addProvider(true, new TankyBlockTagProvider(gen, efh));
 		}
 	}
 
@@ -54,7 +61,7 @@ public class TankyDataGen {
 		}
 
 		@Override
-		protected final void buildShapelessRecipes(Consumer<FinishedRecipe> consumer) {
+		protected final void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
 			ShapedRecipeBuilder.shaped(TankyItems.IRON_TANK_WALL.get(), 3)
 					.unlockedBy("has_item", has(Tags.Items.INGOTS_IRON))
 					.group(MODID + ":iron_tank_wall")
@@ -87,7 +94,7 @@ public class TankyDataGen {
 					.define('G', Tags.Items.GLASS)
 					.save(consumer);
 
-			Tag<Item> steelIngot = ItemTags.bind("forge:ingots/steel");
+			TagKey<Item> steelIngot = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("forge:ingots/steel"));
 
 			ShapedRecipeBuilder.shaped(TankyItems.STEEL_TANK_WALL.get(), 3)
 					.unlockedBy("has_item", has(steelIngot))
@@ -123,11 +130,15 @@ public class TankyDataGen {
 		}
 	}
 
-	private static class TankyLootTableProvider extends ForgeLootTableProvider {
+	private static class TankyLootTableProvider extends LootTableProvider {
 		private final List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> lootTables = Lists.newArrayList(Pair.of(TankyBlockLootTableProvider::new, LootContextParamSets.BLOCK));
 
 		public TankyLootTableProvider(DataGenerator dataGeneratorIn) {
 			super(dataGeneratorIn);
+		}
+
+		@Override
+		protected void validate(Map<ResourceLocation, LootTable> map, ValidationContext validationtracker) {
 		}
 
 		@Override
@@ -173,6 +184,22 @@ public class TankyDataGen {
 		@Override
 		protected void add(Block blockIn, LootTable.Builder table) {
 			tables.put(blockIn.getLootTable(), table);
+		}
+	}
+
+	private static class TankyBlockTagProvider extends BlockTagsProvider {
+		public TankyBlockTagProvider(DataGenerator gen, ExistingFileHelper efh) {
+			super(gen, Tanky.MOD_ID, efh);
+		}
+
+		@Override
+		protected void addTags() {
+			var ironTankBlocks = TankyUtils.getAllBlocks(TankyBlocks.IRON_TANK_CONTROLLER, TankyBlocks.IRON_TANK_WALL, TankyBlocks.IRON_TANK_GLASS);
+			var steelTankBlocks = TankyUtils.getAllBlocks(TankyBlocks.STEEL_TANK_CONTROLLER, TankyBlocks.STEEL_TANK_WALL, TankyBlocks.STEEL_TANK_GLASS);
+
+			tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ironTankBlocks).add(steelTankBlocks);
+			tag(BlockTags.NEEDS_STONE_TOOL).add(ironTankBlocks);
+			tag(BlockTags.NEEDS_IRON_TOOL).add(steelTankBlocks);
 		}
 	}
 }

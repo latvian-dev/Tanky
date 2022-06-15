@@ -1,5 +1,5 @@
 modLoader = "javafml" #mandatory
-loaderVersion = "[36,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+loaderVersion = "[41,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
 license = "GNU LGPLv3" #mandatory
 #issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/" #optional
 [[mods]] #mandatory
@@ -8,19 +8,19 @@ version = "${version}" #mandatory
 displayName = "Tanky" #mandatory
 authors = "LatvianModder"
 description = '''
-Tanky
+Tanky adds... a tank! And a pretty large one too!
 '''
-
-[[dependencies.tanky]] #optional
-modId = "forge" #mandatory
-mandatory = true #mandatory
-versionRange = "[36,)" #mandatory
-ordering = "NONE"
-side = "BOTH"
 
 [[dependencies.tanky]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.16.5,)"
+versionRange = "[1.19,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.tanky]] #optional
+modId = "forge" #mandatory
+mandatory = true #mandatory
+versionRange = "[${forge_version},)" #mandatory
 ordering = "NONE"
 side = "BOTH"

@@ -1,0 +1,4 @@
+// 1.19	2022-06-15T20:30:06.507323686	Tags for minecraft:block
+782b539d59a869a9aa0ef69cd71bf53509b0be38 data/minecraft/tags/blocks/mineable/pickaxe.json
+b20992febf2433a55279df49baa2677d3e701297 data/minecraft/tags/blocks/needs_iron_tool.json
+2d0cbd8ca9477469d06e29e9b55d63792b4b2caf data/minecraft/tags/blocks/needs_stone_tool.json

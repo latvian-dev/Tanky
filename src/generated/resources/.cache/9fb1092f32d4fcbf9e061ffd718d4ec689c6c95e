@@ -1,0 +1,13 @@
+// 1.19	2022-06-15T20:30:06.509193021	Recipes
+0d92312e51096b0c4b57bc69edbea7a388b208b2 data/tanky/advancements/recipes/tanky/iron_tank_controller.json
+ca4c3effccded15819bad70e2205f48e8566b636 data/tanky/advancements/recipes/tanky/iron_tank_glass.json
+1d26e2869bfd160acb61e759e132bb5d729c2792 data/tanky/advancements/recipes/tanky/iron_tank_wall.json
+e739585801d69cfa5ef9603cfae03f95466808ad data/tanky/advancements/recipes/tanky/steel_tank_controller.json
+a15875624c17b7df07eb01dde68b40fb325c38ae data/tanky/advancements/recipes/tanky/steel_tank_glass.json
+022732d1f1d0205c85f7ba12150fd2fa4671e72a data/tanky/advancements/recipes/tanky/steel_tank_wall.json
+f73cd884ccfe4201da17ad7c59ed66fd97a639e1 data/tanky/recipes/iron_tank_controller.json
+cf578d6f0ad18cb5706cb55eb7c7964cb5839185 data/tanky/recipes/iron_tank_glass.json
+d9c8bd95d1fe62d4827629f570a3dc435e7f1c81 data/tanky/recipes/iron_tank_wall.json
+4250a3868f39e497d752dab78b000072dc577421 data/tanky/recipes/steel_tank_controller.json
+a33b634e96f7a06f1b7590d832f02da58960b931 data/tanky/recipes/steel_tank_glass.json
+f9788abc92c65c186ff1a76b09373aa75770c12c data/tanky/recipes/steel_tank_wall.json

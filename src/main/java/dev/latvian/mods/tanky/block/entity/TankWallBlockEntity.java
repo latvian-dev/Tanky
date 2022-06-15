@@ -18,24 +18,23 @@ public class TankWallBlockEntity extends BlockEntity implements TankEntityLookup
 	public BlockPos controllerPos = null;
 	public TankControllerBlockEntity cachedEntity = null;
 
-	public TankWallBlockEntity() {
-		super(TankyBlockEntities.TANK_WALL.get());
+	public TankWallBlockEntity(BlockPos pos, BlockState state) {
+		super(TankyBlockEntities.TANK_WALL.get(), pos, state);
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
+	public void saveAdditional(CompoundTag tag) {
+		super.saveAdditional(tag);
 		if (controllerPos != null) {
 			tag.putInt("ControllerX", controllerPos.getX());
 			tag.putInt("ControllerY", controllerPos.getY());
 			tag.putInt("ControllerZ", controllerPos.getZ());
 		}
-
-		return super.save(tag);
 	}
 
 	@Override
-	public void load(BlockState state, CompoundTag tag) {
-		super.load(state, tag);
+	public void load(CompoundTag tag) {
+		super.load(tag);
 
 		if (tag.contains("ControllerX")) {
 			controllerPos = new BlockPos(tag.getInt("ControllerX"), tag.getInt("ControllerY"), tag.getInt("ControllerZ"));
@@ -61,8 +60,8 @@ public class TankWallBlockEntity extends BlockEntity implements TankEntityLookup
 	}
 
 	@Override
-	public void clearCache() {
-		super.clearCache();
+	public void setChanged() {
+		super.setChanged();
 		cachedEntity = null;
 	}
 
@@ -78,8 +77,8 @@ public class TankWallBlockEntity extends BlockEntity implements TankEntityLookup
 
 				BlockEntity entity = level.getBlockEntity(controllerPos);
 
-				if (entity instanceof TankControllerBlockEntity) {
-					cachedEntity = (TankControllerBlockEntity) entity;
+				if (entity instanceof TankControllerBlockEntity controller) {
+					cachedEntity = controller;
 				}
 			}
 		}
@@ -91,7 +90,6 @@ public class TankWallBlockEntity extends BlockEntity implements TankEntityLookup
 		if (!Objects.equals(controllerPos, p)) {
 			controllerPos = p;
 			setChanged();
-			cachedEntity = null;
 			level.setBlock(worldPosition, getBlockState().setValue(TankWallBlock.VALID, controllerPos != null), 3);
 		}
 	}

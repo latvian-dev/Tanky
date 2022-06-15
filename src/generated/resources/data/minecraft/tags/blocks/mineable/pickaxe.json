@@ -1,0 +1,10 @@
+{
+  "values": [
+    "tanky:iron_tank_controller",
+    "tanky:iron_tank_wall",
+    "tanky:iron_tank_glass",
+    "tanky:steel_tank_controller",
+    "tanky:steel_tank_wall",
+    "tanky:steel_tank_glass"
+  ]
+}

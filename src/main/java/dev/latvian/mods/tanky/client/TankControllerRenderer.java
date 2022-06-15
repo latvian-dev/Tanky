@@ -13,12 +13,11 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.RenderProperties;
 import net.minecraftforge.fluids.FluidStack;
 
-public class TankControllerRenderer extends BlockEntityRenderer<TankControllerBlockEntity> {
-	public TankControllerRenderer(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher);
-	}
+public class TankControllerRenderer implements BlockEntityRenderer<TankControllerBlockEntity> {
 
 	@Override
 	public void render(TankControllerBlockEntity entity, float delta, PoseStack matrices, MultiBufferSource source, int light0, int overlay) {
@@ -37,14 +36,15 @@ public class TankControllerRenderer extends BlockEntityRenderer<TankControllerBl
 		int light = LevelRenderer.getLightColor(entity.getLevel(), entity.tank.getFluid().getFluid().defaultFluidState().createLegacyBlock(), entity.getBlockPos().above());
 
 		FluidStack fluid = entity.tank.getFluid();
+		var renderProperties = RenderProperties.get(fluid.getFluid());
 
-		VertexConsumer builder = source.getBuffer(RenderType.translucent()).getVertexBuilder();
+		VertexConsumer builder = source.getBuffer(RenderType.translucent());
 
-		mc.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
-		TextureAtlasSprite sprite = mc.getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(fluid.getFluid().getAttributes().getStillTexture(fluid));
+		mc.getTextureManager().bindForSetup(TextureAtlas.LOCATION_BLOCKS);
+		TextureAtlasSprite sprite = mc.getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(renderProperties.getStillTexture(fluid));
 
 		Matrix3f n = matrices.last().normal();
-		int color = fluid.getFluid().getAttributes().getColor(fluid);
+		int color = renderProperties.getColorTint(fluid);
 		float r = ((color >> 16) & 255) / 255F;
 		float g = ((color >> 8) & 255) / 255F;
 		float b = ((color >> 0) & 255) / 255F;
