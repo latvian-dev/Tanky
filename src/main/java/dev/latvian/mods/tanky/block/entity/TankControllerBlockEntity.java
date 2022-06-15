@@ -22,7 +22,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
@@ -152,7 +151,7 @@ public class TankControllerBlockEntity extends BlockEntity implements TankEntity
 		int h = 0;
 		boolean foundTop = false;
 
-		int maxY = Math.min(TankyConfig.MAX_HEIGHT, level.getHeight() - worldPosition.getY());
+		int maxY = Math.min(TankyConfig.GENERAL.MAX_HEIGHT.get(), level.getHeight() - worldPosition.getY());
 		BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
 		for (int y = 1; y < maxY; y++) {
@@ -176,7 +175,7 @@ public class TankControllerBlockEntity extends BlockEntity implements TankEntity
 
 		int r = 0;
 
-		for (int i = 0; i < TankyConfig.MAX_RADIUS; i++) {
+		for (int i = 0; i < TankyConfig.GENERAL.MAX_RADIUS.get(); i++) {
 			mutablePos.set(worldPosition.getX(), worldPosition.getY() + 1, worldPosition.getZ() + i);
 
 			if (isAir(level.getBlockState(mutablePos))) {
@@ -282,7 +281,7 @@ public class TankControllerBlockEntity extends BlockEntity implements TankEntity
 			controller.resize(tier);
 
 			if (controller.height > 0) {
-				controller.tank.setCapacity(FluidType.BUCKET_VOLUME * tier.buckets * (controller.height + 1) * (controller.radius * 2 + 1) * (controller.radius * 2 + 1));
+				controller.tank.setCapacity(tier.getCapacity() * (controller.height - 1) * (controller.radius * 2 - 1) * (controller.radius * 2 - 1));
 			} else {
 				controller.tank.setCapacity(0);
 			}

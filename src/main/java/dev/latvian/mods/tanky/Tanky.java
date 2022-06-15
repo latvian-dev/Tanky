@@ -37,7 +37,7 @@ public class Tanky {
 		TankyItems.REGISTRY.register(FMLJavaModLoadingContext.get().getModEventBus());
 		TankyBlockEntities.REGISTRY.register(FMLJavaModLoadingContext.get().getModEventBus());
 		TankyMenus.REGISTRY.register(FMLJavaModLoadingContext.get().getModEventBus());
-		TankyUtils.init();
+		TankyConfig.init();
 		PROXY.init();
 	}
 }

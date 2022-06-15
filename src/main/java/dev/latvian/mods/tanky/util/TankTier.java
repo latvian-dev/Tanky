@@ -1,12 +1,12 @@
 package dev.latvian.mods.tanky.util;
 
-public enum TankTier {
-	IRON(16),
-	STEEL(32);
+import dev.latvian.mods.tanky.TankyConfig;
 
-	public final int buckets;
+public interface TankTier {
 
-	TankTier(int c) {
-		buckets = c;
-	}
+	TankTier IRON = TankyConfig.CAPACITY.IRON_CAPACITY::get;
+
+	TankTier STEEL = TankyConfig.CAPACITY.STEEL_CAPACITY::get;
+
+	int getCapacity();
 }
