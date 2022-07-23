@@ -9,12 +9,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.RenderProperties;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
 
 public class TankControllerRenderer implements BlockEntityRenderer<TankControllerBlockEntity> {
@@ -36,7 +34,7 @@ public class TankControllerRenderer implements BlockEntityRenderer<TankControlle
 		int light = LevelRenderer.getLightColor(entity.getLevel(), entity.tank.getFluid().getFluid().defaultFluidState().createLegacyBlock(), entity.getBlockPos().above());
 
 		FluidStack fluid = entity.tank.getFluid();
-		var renderProperties = RenderProperties.get(fluid.getFluid());
+		var renderProperties = ((IClientFluidTypeExtensions)fluid.getFluid().getFluidType().getRenderPropertiesInternal());
 
 		VertexConsumer builder = source.getBuffer(RenderType.translucent());
 
@@ -44,7 +42,7 @@ public class TankControllerRenderer implements BlockEntityRenderer<TankControlle
 		TextureAtlasSprite sprite = mc.getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(renderProperties.getStillTexture(fluid));
 
 		Matrix3f n = matrices.last().normal();
-		int color = renderProperties.getColorTint(fluid);
+		int color = renderProperties.getTintColor(fluid);
 		float r = ((color >> 16) & 255) / 255F;
 		float g = ((color >> 8) & 255) / 255F;
 		float b = ((color >> 0) & 255) / 255F;

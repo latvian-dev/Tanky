@@ -10,7 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.function.Supplier;
 
 public interface TankyMenus {
-	DeferredRegister<MenuType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.CONTAINERS, Tanky.MOD_ID);
+	DeferredRegister<MenuType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Tanky.MOD_ID);
 
 	static <T extends AbstractContainerMenu> Supplier<MenuType<T>> register(String id, IContainerFactory<T> factory) {
 		return REGISTRY.register(id, () -> new MenuType<>(factory));
